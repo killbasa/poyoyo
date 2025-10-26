@@ -1,0 +1,44 @@
+{
+	"name": "poyoyo",
+	"version": "0.1.0",
+	"author": "killbasa <git@killbasa.com>",
+	"license": "Apache-2.0",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "yarn clean && tsc",
+		"start": "node --enable-source-maps dist/main.js",
+		"check": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"clean": "rm -rf dist",
+		"docker": "docker buildx build -t killbasa/poyoyo ."
+	},
+	"dependencies": {
+		"discord.js": "^14.24.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.3.0",
+		"@types/node": "^24.9.1",
+		"prettier": "^3.6.2",
+		"typescript": "5.9.3"
+	},
+	"lint-staged": {
+		"*.{mjs,cjs,js,ts}": [
+			"biome check --write \"**/*.{mjs,cjs,js,ts}\""
+		],
+		"*.{json,yml,yaml}": [
+			"biome format --write \"**/*.{json,yml,yaml}\""
+		],
+		"*.md": [
+			"prettier --write --log-level=warn \"**/*.md\""
+		]
+	},
+	"engines": {
+		"node": "24.x"
+	},
+	"packageManager": "yarn@4.10.3",
+	"volta": {
+		"node": "24.10.0"
+	}
+}

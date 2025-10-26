@@ -1,0 +1,18 @@
+{
+	"compilerOptions": {
+		"outDir": "dist",
+		"rootDir": "src",
+		"allowJs": true,
+		"alwaysStrict": true,
+		"checkJs": true,
+		"lib": ["ESNext"],
+		"module": "node20",
+		"moduleResolution": "nodenext",
+		"sourceMap": true,
+		"skipLibCheck": true,
+		"strict": true,
+		"target": "es2024",
+		"verbatimModuleSyntax": true
+	},
+	"include": ["src"]
+}

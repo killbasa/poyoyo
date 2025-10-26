@@ -1,0 +1,20 @@
+## Builds ##
+dist/
+
+## Development ##
+coverage/
+data/
+
+## Dependencies ##
+.yarn/cache/
+.yarn/install-state.gz
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+
+## IDEs ##
+.idea/
+
+## Env ##
+.env*
+!.env.template

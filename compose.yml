@@ -1,0 +1,9 @@
+services:
+  poyoyo:
+    build: .
+    container_name: ghcr.io/killbasa/poyoyo
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./data:/etc/poyoyo/data
