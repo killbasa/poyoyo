@@ -1,10 +1,11 @@
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import { Client, Events, GatewayIntentBits, userMention } from 'discord.js';
+import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { BotConfig } from './config.js';
 import { DB_PATH } from './constants.js';
-import { getUser, initDb, updateLandmines } from './db.js';
+import { getServer, initDb, updateLandmines } from './db.js';
 import { logger } from './logger.js';
+import { getRandomInteger, sendPrize } from './prizes.js';
 
 // Ensure the database directory exists
 await mkdir(join(DB_PATH, '..'), { recursive: true });
@@ -26,46 +27,56 @@ client.once(Events.ClientReady, (readyClient) => {
 client.on(Events.MessageCreate, async (event) => {
 	if (event.author.bot) return;
 
-	if (!event.member) {
+	if (!event.guild) {
+		logger.log('No guild info available');
+		return;
+	}
+
+	const user = event.member;
+	if (!user) {
 		logger.log('No member info available');
 		return;
 	}
 
-	const percent = BotConfig.landmine.rate * 100;
-	const randInt = Math.floor(Math.random() * percent * 100) + 1;
-	logger.log(`Random int for ${event.author.id}: ${randInt}`);
+	const channel = await event.guild.channels.fetch(event.channelId);
+	if (!channel?.isTextBased()) {
+		logger.log('Channel is not guild and/or text-based');
+		return;
+	}
+
+	const randInt = getRandomInteger(1, BotConfig.landmine.upbound);
+	logger.log(`Random int for ${user.id}: ${randInt}`);
 
 	if (randInt === 1) {
-		const user = getUser(db, event.author.id);
-		const currLandmine = user?.landmines ?? 0;
+		const server = getServer(db, event.guild.id);
+		const currLandmine = server?.landmines ?? 0;
 
-		logger.log(
-			`User ${user?.id ?? event.author.id} hit a landmine (${currLandmine} prior)`,
-		);
+		logger.log(`User ${user.id} hit a landmine (${currLandmine} prior)`);
 
-		if (user && user.landmines === 2) {
+		if (server && server.landmines === 2) {
 			logger.log(
-				`User ${user.id} has hit 3 landmines, timing out for 2 minutes`,
+				`User ${user.id} has hit the 3rd landmine, timing out for 2 minutes`,
 			);
 
-			updateLandmines(db, event.author.id, 0);
+			updateLandmines(db, event.guild.id, 0);
 
-			await event.channel.send({
-				content: `:boom: ${userMention(event.author.id)} stepped on 3 landmines and has been timed out for 2 minutes!`,
-				allowedMentions: { users: [event.author.id] },
-			});
-			await event.member.timeout(2 * 60 * 1000, 'Stepped on 3 landmines');
+			await sendPrize(channel, user);
 		} else {
 			logger.log(
-				`Updating landmines for user ${event.author.id} from ${currLandmine} to ${currLandmine + 1}`,
+				`Updating landmines for user ${user.id} from ${currLandmine} to ${currLandmine + 1}`,
 			);
 
-			updateLandmines(db, event.author.id, currLandmine + 1);
+			updateLandmines(db, event.guild.id, currLandmine + 1);
 
-			await event.channel.send({
-				content: `:boom: ${userMention(event.author.id)} stepped on a landmine (${currLandmine + 1}/3)`,
-				allowedMentions: { users: [event.author.id] },
-			});
+			if (!server || server.landmines === 0) {
+				await event.channel.send({
+					content: `landmine placed`,
+				});
+			} else if (server.landmines === 1) {
+				await event.channel.send({
+					content: `landmine armed`,
+				});
+			}
 		}
 	}
 });

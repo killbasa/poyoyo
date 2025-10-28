@@ -16,6 +16,8 @@ export const BotConfig = {
 		token,
 	},
 	landmine: {
-		rate: process.env.LANDMINE_RATE ? parseFloat(process.env.LANDMINE_RATE) : 0.01,
-	}
+		upbound: process.env.LANDMINE_UPBOUND
+			? parseFloat(process.env.LANDMINE_UPBOUND)
+			: 100,
+	},
 };

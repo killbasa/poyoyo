@@ -5,7 +5,7 @@ export const initDb = (): DatabaseSync => {
 	const database = new DatabaseSync(DB_PATH);
 
 	database.exec(`
-		CREATE TABLE IF NOT EXISTS users(
+		CREATE TABLE IF NOT EXISTS servers(
 			id TEXT PRIMARY KEY,
 			landmines INTEGER DEFAULT 0
 		) STRICT
@@ -16,29 +16,29 @@ export const initDb = (): DatabaseSync => {
 
 export const updateLandmines = (
 	db: DatabaseSync,
-	userId: string,
+	serverId: string,
 	landmines: number,
 ): void => {
 	const stmt = db.prepare(`
-		INSERT INTO users (id, landmines)
+		INSERT INTO servers (id, landmines)
 		VALUES (?, ?)
 		ON CONFLICT(id) DO UPDATE SET landmines=excluded.landmines
 	`);
 
-	stmt.run(userId, landmines);
+	stmt.run(serverId, landmines);
 };
 
-export const getUser = (
+export const getServer = (
 	db: DatabaseSync,
-	userId: string,
+	serverId: string,
 ): { id: string; landmines: number } | null => {
 	const stmt = db.prepare(`
-		SELECT id, landmines FROM users WHERE id = ?
+		SELECT id, landmines FROM servers WHERE id = ?
 	`);
 
-	const user = stmt.get(userId) as
+	const server = stmt.get(serverId) as
 		| { id: string; landmines: number }
 		| undefined;
 
-	return user ?? null;
+	return server ?? null;
 };
