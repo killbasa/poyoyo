@@ -18,7 +18,7 @@
 		"discord.js": "^14.24.0"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.3.0",
+		"@biomejs/biome": "^2.3.1",
 		"@types/node": "^24.9.1",
 		"prettier": "^3.6.2",
 		"typescript": "5.9.3"

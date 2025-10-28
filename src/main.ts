@@ -31,7 +31,8 @@ client.on(Events.MessageCreate, async (event) => {
 		return;
 	}
 
-	const randInt = Math.floor(Math.random() * 200) + 1; // 1/200 == 0.5%
+	const percent = BotConfig.landmine.rate * 100;
+	const randInt = Math.floor(Math.random() * percent * 100) + 1;
 	logger.log(`Random int for ${event.author.id}: ${randInt}`);
 
 	if (randInt === 1) {

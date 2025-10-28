@@ -15,4 +15,7 @@ export const BotConfig = {
 	discord: {
 		token,
 	},
+	landmine: {
+		rate: process.env.LANDMINE_RATE ? parseFloat(process.env.LANDMINE_RATE) : 0.01,
+	}
 };
