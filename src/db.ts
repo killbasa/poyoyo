@@ -33,7 +33,7 @@ export const getUser = (
 	userId: string,
 ): { id: string; landmines: number } | null => {
 	const stmt = db.prepare(`
-		SELECT (id, landmines) FROM users WHERE id = ?
+		SELECT id, landmines FROM users WHERE id = ?
 	`);
 
 	const user = stmt.get(userId) as
