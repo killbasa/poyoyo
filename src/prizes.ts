@@ -43,18 +43,18 @@ const prizes = {
 		channel: GuildTextBasedChannel,
 		member: GuildMember,
 	): Promise<void> => {
-		const randomUserId = channel.guild.members.cache
+		const randomUser = channel.guild.members.cache
 			.filter((m) => m.id !== member.id && !m.user.bot)
-			.random()?.id;
+			.random();
 
-		if (!randomUserId) {
+		if (!randomUser) {
 			throw new Error('No valid user to push onto landmine');
 		}
 
 		await channel.send({
-			content: `${userMention(member.id)} pushed ${userMention(randomUserId)} onto a landmine, giving them a 5-minute timeout`,
+			content: `${userMention(member.id)} pushed ${userMention(randomUser.id)} onto a landmine, giving them a 5-minute timeout`,
 		});
 
-		await member.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
+		await randomUser.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
 	},
 };
