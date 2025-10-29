@@ -55,7 +55,7 @@ client.on(Events.MessageCreate, async (event) => {
 
 		if (server && server.landmines === 2) {
 			logger.log(
-				`User ${user.id} has hit the 3rd landmine, timing out for 2 minutes`,
+				`User ${user.id} has hit the 3rd landmine, timing out for 5 minutes`,
 			);
 
 			updateLandmines(db, event.guild.id, 0);
@@ -82,3 +82,5 @@ client.on(Events.MessageCreate, async (event) => {
 });
 
 await client.login(BotConfig.discord.token);
+
+logger.log(`Rate: 1/${BotConfig.landmine.upbound}`);
