@@ -15,7 +15,7 @@
 		"docker": "docker buildx build -t killbasa/poyoyo ."
 	},
 	"dependencies": {
-		"discord.js": "^14.24.1"
+		"discord.js": "^14.24.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.3.2",
@@ -39,6 +39,6 @@
 	},
 	"packageManager": "yarn@4.10.3",
 	"volta": {
-		"node": "24.10.0"
+		"node": "25.1.0"
 	}
 }

@@ -6,18 +6,19 @@ if (isDev) {
 }
 
 const token = process.env.DISCORD_TOKEN;
-
 if (!token) {
 	throw new Error('Missing Discord bot token');
 }
 
+const botOwnerId = process.env.BOT_OWNER_ID;
+if (!botOwnerId) {
+	throw new Error('Missing Bot Owner ID');
+}
+
 export const BotConfig = {
+	prefix: '?p',
 	discord: {
 		token,
-	},
-	landmine: {
-		upbound: process.env.LANDMINE_UPBOUND
-			? parseFloat(process.env.LANDMINE_UPBOUND)
-			: 100,
+		owner_id: botOwnerId,
 	},
 };

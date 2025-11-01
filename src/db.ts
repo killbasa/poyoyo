@@ -7,14 +7,15 @@ export const initDb = (): DatabaseSync => {
 	database.exec(`
 		CREATE TABLE IF NOT EXISTS servers(
 			id TEXT PRIMARY KEY,
-			landmines INTEGER DEFAULT 0
+			landmines INTEGER DEFAULT 0,
+			rate REAL DEFAULT 0.0
 		) STRICT
 	`);
 
 	return database;
 };
 
-export const updateLandmines = (
+export const upsertLandmine = (
 	db: DatabaseSync,
 	serverId: string,
 	landmines: number,
@@ -28,16 +29,30 @@ export const updateLandmines = (
 	stmt.run(serverId, landmines);
 };
 
+export const upsertRate = (
+	db: DatabaseSync,
+	serverId: string,
+	rate: number,
+): void => {
+	const stmt = db.prepare(`
+		INSERT INTO servers (id, rate)
+		VALUES (?, ?)
+		ON CONFLICT(id) DO UPDATE SET rate=excluded.rate
+	`);
+
+	stmt.run(serverId, rate);
+};
+
 export const getServer = (
 	db: DatabaseSync,
 	serverId: string,
-): { id: string; landmines: number } | null => {
+): { id: string; landmines: number; rate: number } | null => {
 	const stmt = db.prepare(`
-		SELECT id, landmines FROM servers WHERE id = ?
+		SELECT id, landmines, rate FROM servers WHERE id = ?
 	`);
 
 	const server = stmt.get(serverId) as
-		| { id: string; landmines: number }
+		| { id: string; landmines: number; rate: number }
 		| undefined;
 
 	return server ?? null;

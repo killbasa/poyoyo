@@ -3,58 +3,65 @@ import {
 	type GuildTextBasedChannel,
 	userMention,
 } from 'discord.js';
+import { Emoji, getRandomInteger } from './utils.js';
 
-export const getRandomInteger = (min: number, max: number): number => {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-};
+export type PrizeFunc = (
+	channel: GuildTextBasedChannel,
+	member: GuildMember,
+) => Promise<void>;
 
 export const sendPrize = async (
 	channel: GuildTextBasedChannel,
 	member: GuildMember,
 ) => {
-	const prize = getRandomInteger(1, 3);
+	const prize = getRandomInteger(1, Object.keys(prizes).length);
 
-	if (prize === 1) {
-		prizes.one(channel, member);
-	} else if (prize === 2) {
-		prizes.two(channel);
-	} else {
-		prizes.three(channel, member);
-	}
+	prizes[prize - 1].run(channel, member);
 };
 
-const prizes = {
-	one: async (
-		channel: GuildTextBasedChannel,
-		member: GuildMember,
-	): Promise<void> => {
-		await channel.send({
-			content: `:boom: ${userMention(member.id)} stepped on a landmine, you get a 5-minute timeout`,
-		});
+const prizes: { run: PrizeFunc }[] = [
+	/* Basic timeout */
+	{
+		run: async (
+			channel: GuildTextBasedChannel,
+			member: GuildMember,
+		): Promise<void> => {
+			await channel.send({
+				content: `${Emoji.Boom} ${userMention(member.id)} stepped on a landmine, they get a 5-minute timeout`,
+				allowedMentions: { users: [member.id] },
+			});
 
-		await member.timeout(5 * 60 * 1000, 'Stepped on landmines');
+			await member.timeout(5 * 60 * 1000, 'Stepped on landmines');
+		},
 	},
-	two: async (channel: GuildTextBasedChannel): Promise<void> => {
-		await channel.send({
-			content: "no boom, it's a dud",
-		});
+	/* Fakeout */
+	{
+		run: async (channel: GuildTextBasedChannel): Promise<void> => {
+			await channel.send({
+				content: `${Emoji.WiltedRose} no boom, it's a dud`,
+			});
+		},
 	},
-	three: async (
-		channel: GuildTextBasedChannel,
-		member: GuildMember,
-	): Promise<void> => {
-		const randomUser = channel.guild.members.cache
-			.filter((m) => m.id !== member.id && !m.user.bot)
-			.random();
+	/* Timeout another user */
+	{
+		run: async (
+			channel: GuildTextBasedChannel,
+			member: GuildMember,
+		): Promise<void> => {
+			const randomUser = channel.guild.members.cache
+				.filter((m) => m.id !== member.id && !m.user.bot)
+				.random();
 
-		if (!randomUser) {
-			throw new Error('No valid user to push onto landmine');
-		}
+			if (!randomUser) {
+				throw new Error('No valid user to push onto landmine');
+			}
 
-		await channel.send({
-			content: `${userMention(member.id)} pushed ${userMention(randomUser.id)} onto a landmine, giving them a 5-minute timeout`,
-		});
+			await channel.send({
+				content: `${Emoji.FubukiThumbsUp} ${userMention(member.id)} pushed ${userMention(randomUser.id)} onto a landmine, giving them a 5-minute timeout`,
+				allowedMentions: { users: [member.id, randomUser.id] },
+			});
 
-		await randomUser.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
+			await randomUser.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
+		},
 	},
-};
+];
