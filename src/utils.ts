@@ -16,4 +16,5 @@ export const Emoji = {
 	Boom: ':boom:',
 	WiltedRose: ':wilted_rose:',
 	FubukiThumbsUp: formatEmoji('930312710493724753'),
+	PoyoyoBigL: formatEmoji('933944117082333204'),
 };

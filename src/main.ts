@@ -7,6 +7,7 @@ import { DB_PATH } from './constants.js';
 import { initDb } from './db.js';
 import { handleLandmines } from './landmines.js';
 import { logger } from './logger.js';
+import { Emoji } from './utils.js';
 
 // Ensure the database directory exists
 await mkdir(join(DB_PATH, '..'), { recursive: true });
@@ -34,6 +35,7 @@ client.on(Events.MessageCreate, async (event) => {
 	}
 
 	if (event.author.id !== BotConfig.discord.owner_id) {
+		await event.react(Emoji.PoyoyoBigL);
 		return;
 	}
 
