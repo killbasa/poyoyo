@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Message, OmitPartialGroupDMChannel } from 'discord.js';
-import { getServer, upsertRate } from './db.js';
+import { getServer, upsertLandmine } from './db.js';
 import { logger } from './logger.js';
 import { sendPrize } from './prizes.js';
 import { getRandomInteger, getUpperBound } from './utils.js';
@@ -47,7 +47,7 @@ export const handleLandmines = async (
 				`User ${user.id} has hit the 3rd landmine, timing out for 5 minutes`,
 			);
 
-			upsertRate(db, event.guild.id, 0);
+			upsertLandmine(db, event.guild.id, 0);
 
 			await sendPrize(channel, user);
 		} else {
@@ -55,7 +55,7 @@ export const handleLandmines = async (
 				`Updating landmines for user ${user.id} from ${currLandmine} to ${currLandmine + 1}`,
 			);
 
-			upsertRate(db, event.guild.id, currLandmine + 1);
+			upsertLandmine(db, event.guild.id, currLandmine + 1);
 
 			if (!server || server.landmines === 0) {
 				await event.channel.send({
