@@ -33,11 +33,6 @@ client.on(Events.MessageCreate, async (event) => {
 		return await handleLandmines(db, event);
 	}
 
-	if (event.author.id !== BotConfig.discord.owner_id) {
-		await event.react('933944117082333204');
-		return;
-	}
-
 	const args = parseCommand(event.content);
 	if (args.length === 0) {
 		logger.log('Failed to parse command');
@@ -45,6 +40,22 @@ client.on(Events.MessageCreate, async (event) => {
 	}
 
 	const command = args.shift()?.toLowerCase();
+
+	// Public commands
+	switch (command) {
+		case 'leaderboard':
+			if (!event.inGuild()) {
+				logger.log(`No guild info available (${command})`);
+				return;
+			}
+			return await commands.leaderboard(db, event);
+	}
+
+	// Protected commands
+	if (event.author.id !== BotConfig.discord.owner_id) {
+		await event.react('933944117082333204');
+		return;
+	}
 
 	// General commands
 	switch (command) {

@@ -12,6 +12,14 @@ export const initDb = (): DatabaseSync => {
 		) STRICT
 	`);
 
+	database.exec(`
+		CREATE TABLE IF NOT EXISTS users(
+			id TEXT PRIMARY KEY,
+			serverId TEXT,
+			wins INTEGER DEFAULT 0
+		) STRICT
+	`);
+
 	return database;
 };
 
@@ -56,4 +64,33 @@ export const getServer = (
 		| undefined;
 
 	return server ?? null;
+};
+
+export const incrementWin = (
+	db: DatabaseSync,
+	userId: string,
+	serverId: string,
+): void => {
+	const stmt = db.prepare(`
+		INSERT INTO users (id, serverId, wins)
+		VALUES (?, ?, 1)
+		ON CONFLICT(id) DO UPDATE SET wins = wins + 1
+	`);
+
+	stmt.run(userId, serverId);
+};
+
+export const getWins = (
+	db: DatabaseSync,
+	serverId: string,
+): { id: string; wins: number }[] => {
+	const stmt = db.prepare(`
+		SELECT id, wins FROM users WHERE serverId = ?
+	`);
+
+	const result = stmt.all(serverId) as
+		| { id: string; wins: number }[]
+		| undefined;
+
+	return result ?? [];
 };

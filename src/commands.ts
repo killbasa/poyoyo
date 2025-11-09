@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Message } from 'discord.js';
 import { BotConfig } from './config.js';
-import { getServer, upsertRate } from './db.js';
+import { getServer, getWins, upsertRate } from './db.js';
 import { client } from './main.js';
 import { getUpperBound } from './utils.js';
 
@@ -64,6 +64,26 @@ export const commands = {
 
 		await message.reply({
 			content: `landmine rate set to ${newRate}`,
+		});
+	},
+	leaderboard: async (
+		db: DatabaseSync,
+		message: Message<true>,
+	): Promise<void> => {
+		const wins = getWins(db, message.guild.id);
+
+		const content =
+			wins.length > 0
+				? wins
+						.sort((a, b) => b.wins - a.wins)
+						.map(
+							(entry, index) => `${index + 1}. <@${entry.id}> - ${entry.wins}`,
+						)
+						.join('\n')
+				: 'no winners yet';
+
+		await message.reply({
+			content,
 		});
 	},
 };

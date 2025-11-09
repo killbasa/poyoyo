@@ -53,7 +53,12 @@ const prizes: { run: PrizeFunc }[] = [
 				.random();
 
 			if (!randomUser) {
-				throw new Error('No valid user to push onto landmine');
+				await channel.send({
+					content: `${Emoji.FubukiThumbsUp} ${userMention(member.id)} pushed... wait what there's nobody to push. guess you die.`,
+					allowedMentions: { users: [member.id] },
+				});
+				await member.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
+				return;
 			}
 
 			await channel.send({
