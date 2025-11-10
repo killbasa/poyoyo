@@ -84,6 +84,7 @@ export const commands = {
 
 		await message.reply({
 			content,
+			allowedMentions: { users: [], roles: [] },
 		});
 	},
 };
