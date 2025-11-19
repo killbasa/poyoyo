@@ -10,8 +10,14 @@ export const isCommand = (message: string): boolean => {
 };
 
 export const parseCommand = (message: string): string[] => {
-	if (!message) return [];
-	return message.slice(BotConfig.prefix.length).trim().split(/\s+/);
+	if (message === BotConfig.prefix || !message.startsWith(BotConfig.prefix))
+		return [];
+
+	const split = message.trim().split(/\s+/);
+	if (!split) return [];
+
+	split.shift();
+	return split;
 };
 
 export const commands = {
