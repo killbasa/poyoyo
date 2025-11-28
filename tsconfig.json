@@ -15,5 +15,6 @@
 		"verbatimModuleSyntax": true,
 		"types": ["vitest/globals"]
 	},
-	"include": ["src"]
+	"include": ["src/**/*.ts"],
+	"exclude": ["dist", "node_modules", "src/**/*.spec.ts"]
 }

@@ -43,6 +43,7 @@ client.on(Events.MessageCreate, async (event) => {
 
 	// Public commands
 	switch (command) {
+		case 'lb':
 		case 'leaderboard':
 			if (!event.inGuild()) {
 				logger.log(`No guild info available (${command})`);

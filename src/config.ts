@@ -1,24 +1,23 @@
 import { loadEnvFile } from 'node:process';
+import { z } from 'zod/v4';
 import { isDev } from './constants.js';
 
 if (isDev) {
 	loadEnvFile();
 }
 
-const token = process.env.DISCORD_TOKEN;
-if (!token) {
-	throw new Error('Missing Discord bot token');
-}
+const BotConfigSchema = z.object({
+	prefix: z.string(),
+	discord: z.object({
+		token: z.string(),
+		owner_id: z.string(),
+	}),
+});
 
-const botOwnerId = process.env.BOT_OWNER_ID;
-if (!botOwnerId) {
-	throw new Error('Missing Bot Owner ID');
-}
-
-export const BotConfig = {
+export const BotConfig = BotConfigSchema.parse({
 	prefix: '?p',
 	discord: {
-		token,
-		owner_id: botOwnerId,
+		token: process.env.DISCORD_TOKEN,
+		owner_id: process.env.BOT_OWNER_ID,
 	},
-};
+});

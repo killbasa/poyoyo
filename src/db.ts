@@ -1,6 +1,16 @@
 import { DatabaseSync } from 'node:sqlite';
 import { DB_PATH } from './constants.js';
 
+function checkColumnExists(
+	db: DatabaseSync,
+	tableName: string,
+	columnName: string,
+): boolean {
+	const stmt = db.prepare(`PRAGMA table_info(${tableName})`);
+	const columns = stmt.all();
+	return columns.some((col) => col.name === columnName);
+}
+
 export const initDb = (): DatabaseSync => {
 	const database = new DatabaseSync(DB_PATH);
 
@@ -19,6 +29,10 @@ export const initDb = (): DatabaseSync => {
 			wins INTEGER DEFAULT 0
 		) STRICT
 	`);
+
+	if (!checkColumnExists(database, 'users', 'losses')) {
+		database.exec('ALTER TABLE users ADD COLUMN losses INTEGER DEFAULT 0');
+	}
 
 	return database;
 };
@@ -75,6 +89,20 @@ export const incrementWin = (
 		INSERT INTO users (id, serverId, wins)
 		VALUES (?, ?, 1)
 		ON CONFLICT(id) DO UPDATE SET wins = wins + 1
+	`);
+
+	stmt.run(userId, serverId);
+};
+
+export const incrementLoss = (
+	db: DatabaseSync,
+	userId: string,
+	serverId: string,
+): void => {
+	const stmt = db.prepare(`
+		INSERT INTO users (id, serverId, losses)
+		VALUES (?, ?, 1)
+		ON CONFLICT(id) DO UPDATE SET losses = losses + 1
 	`);
 
 	stmt.run(userId, serverId);

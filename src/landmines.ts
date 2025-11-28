@@ -50,7 +50,7 @@ export const handleLandmines = async (
 			upsertLandmine(db, event.guild.id, 0);
 			incrementWin(db, user.id, event.guild.id);
 
-			await sendPrize(channel, user);
+			await sendPrize(db, channel, user);
 		} else {
 			logger.log(
 				`Updating landmines for user ${user.id} from ${currLandmine} to ${currLandmine + 1}`,
