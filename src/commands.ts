@@ -75,7 +75,15 @@ export const commands = {
 	leaderboard: async (
 		db: DatabaseSync,
 		message: Message<true>,
+		args: string[],
 	): Promise<void> => {
+		const arg0 = args.length > 0 ? args[0].toLowerCase() : undefined;
+		const type: 'wins' | 'w' | 'losses' | 'l' | undefined =
+			args.length > 0 &&
+			(arg0 === 'wins' || arg0 === 'w' || arg0 === 'losses' || arg0 === 'l')
+				? (arg0 as 'wins' | 'w' | 'losses' | 'l')
+				: undefined;
+
 		const stats = getStats(db, message.guild.id);
 
 		const wins =
@@ -99,12 +107,28 @@ export const commands = {
 						.join('\n')
 				: 'no losers yet';
 
-		const content = `wins leaderboard\n${wins}\n\nlosses leaderboard\n${losses}`;
+		if (type === 'wins' || type === 'w') {
+			const content = `winners\n${wins}`;
 
-		await message.reply({
-			content,
-			allowedMentions: { users: [], roles: [] },
-		});
+			await message.reply({
+				content,
+				allowedMentions: { users: [], roles: [] },
+			});
+		} else if (type === 'losses' || type === 'l') {
+			const content = `losers\n${losses}`;
+
+			await message.reply({
+				content,
+				allowedMentions: { users: [], roles: [] },
+			});
+		} else {
+			const content = `winners\n${wins}\n\nlosers\n${losses}`;
+
+			await message.reply({
+				content,
+				allowedMentions: { users: [], roles: [] },
+			});
+		}
 	},
 	stats: async (db: DatabaseSync, message: Message<true>) => {
 		const stats = getUserStats(db, message.author.id, message.guild.id);

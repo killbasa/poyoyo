@@ -49,7 +49,7 @@ client.on(Events.MessageCreate, async (event) => {
 				logger.log(`No guild info available (${command})`);
 				return;
 			}
-			return await commands.leaderboard(db, event);
+			return await commands.leaderboard(db, event, args);
 		case 'stats':
 			if (!event.inGuild()) {
 				logger.log(`No guild info available (${command})`);

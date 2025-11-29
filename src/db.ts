@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { DB_PATH } from './constants.js';
+import { logger } from './logger.js';
 
 function checkColumnExists(
 	db: DatabaseSync,
@@ -8,7 +9,15 @@ function checkColumnExists(
 ): boolean {
 	const stmt = db.prepare(`PRAGMA table_info(${tableName})`);
 	const columns = stmt.all();
-	return columns.some((col) => col.name === columnName);
+	const exists = columns.some((col) => col.name === columnName);
+
+	if (exists) {
+		logger.log(`column ${tableName}.${columnName} exists`);
+	} else {
+		logger.log(`column ${tableName}.${columnName} does not exist`);
+	}
+
+	return exists;
 }
 
 export const initDb = (): DatabaseSync => {
