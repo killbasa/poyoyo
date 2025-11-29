@@ -108,17 +108,48 @@ export const incrementLoss = (
 	stmt.run(userId, serverId);
 };
 
-export const getWins = (
+export const getStats = (
 	db: DatabaseSync,
 	serverId: string,
-): { id: string; wins: number }[] => {
-	const stmt = db.prepare(`
-		SELECT id, wins FROM users WHERE serverId = ?
+	limit = 5,
+): {
+	wins: { id: string; wins: number }[];
+	losses: { id: string; losses: number }[];
+} => {
+	const winStmt = db.prepare(`
+		SELECT id, wins FROM users WHERE serverId = ? ORDER BY wins DESC LIMIT ?
 	`);
 
-	const result = stmt.all(serverId) as
+	const lossStmt = db.prepare(`
+		SELECT id, losses FROM users WHERE serverId = ? ORDER BY losses DESC LIMIT ?
+	`);
+
+	const wins = winStmt.all(serverId, limit) as
 		| { id: string; wins: number }[]
 		| undefined;
 
-	return result ?? [];
+	const losses = lossStmt.all(serverId, limit) as
+		| { id: string; losses: number }[]
+		| undefined;
+
+	return {
+		wins: wins ?? [],
+		losses: losses ?? [],
+	};
+};
+
+export const getUserStats = (
+	db: DatabaseSync,
+	userId: string,
+	serverId: string,
+): { wins: number; losses: number } => {
+	const stmt = db.prepare(`
+		SELECT wins, losses FROM users WHERE id = ? AND serverId = ?
+	`);
+
+	const stats = stmt.get(userId, serverId) as
+		| { wins: number; losses: number }
+		| undefined;
+
+	return stats ?? { wins: 0, losses: 0 };
 };

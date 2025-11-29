@@ -4,7 +4,7 @@ import {
 	type GuildTextBasedChannel,
 	userMention,
 } from 'discord.js';
-import { incrementLoss } from './db.js';
+import { incrementLoss, incrementWin } from './db.js';
 import { Emoji, getRandomInteger } from './utils.js';
 
 export type PrizeFunc = (args: {
@@ -26,7 +26,9 @@ export const sendPrize = async (
 const prizes: { run: PrizeFunc }[] = [
 	/* Basic timeout */
 	{
-		run: async ({ channel, member }): Promise<void> => {
+		run: async ({ db, channel, member }): Promise<void> => {
+			incrementLoss(db, member.id, channel.guild.id);
+
 			await channel.send({
 				content: `${Emoji.Boom} ${userMention(member.id)} stepped on a landmine, they get a 5-minute timeout`,
 				allowedMentions: { users: [member.id] },
@@ -37,10 +39,12 @@ const prizes: { run: PrizeFunc }[] = [
 	},
 	/* Fakeout */
 	{
-		run: async ({ channel }): Promise<void> => {
+		run: async ({ db, channel, member }): Promise<void> => {
 			await channel.send({
 				content: `${Emoji.WiltedRose} no boom, it's a dud`,
 			});
+
+			incrementWin(db, member.id, channel.guild.id);
 		},
 	},
 	/* Timeout another user */
@@ -51,14 +55,19 @@ const prizes: { run: PrizeFunc }[] = [
 				.random();
 
 			if (!randomUser) {
+				incrementLoss(db, member.id, channel.guild.id);
+
 				await channel.send({
 					content: `${Emoji.FubukiThumbsUp} ${userMention(member.id)} pushed... wait what there's nobody to push. guess you die.`,
 					allowedMentions: { users: [member.id] },
 				});
+
 				await member.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
-				incrementLoss(db, member.id, channel.guild.id);
 				return;
 			}
+
+			incrementWin(db, member.id, channel.guild.id);
+			incrementLoss(db, randomUser.id, channel.guild.id);
 
 			await channel.send({
 				content: `${Emoji.FubukiThumbsUp} ${userMention(member.id)} pushed ${userMention(randomUser.id)} onto a landmine, giving them a 5-minute timeout`,
@@ -66,7 +75,6 @@ const prizes: { run: PrizeFunc }[] = [
 			});
 
 			await randomUser.timeout(5 * 60 * 1000, 'Pushed onto a landmine');
-			incrementLoss(db, randomUser.id, channel.guild.id);
 		},
 	},
 ];

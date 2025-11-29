@@ -1,7 +1,7 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Message } from 'discord.js';
 import { BotConfig } from './config.js';
-import { getServer, getWins, upsertRate } from './db.js';
+import { getServer, getStats, getUserStats, upsertRate } from './db.js';
 import { client } from './main.js';
 import { getUpperBound } from './utils.js';
 
@@ -76,17 +76,40 @@ export const commands = {
 		db: DatabaseSync,
 		message: Message<true>,
 	): Promise<void> => {
-		const wins = getWins(db, message.guild.id);
+		const stats = getStats(db, message.guild.id);
 
-		const content =
-			wins.length > 0
-				? wins
+		const wins =
+			stats.wins.length > 0
+				? stats.wins
 						.sort((a, b) => b.wins - a.wins)
 						.map(
 							(entry, index) => `${index + 1}. <@${entry.id}> - ${entry.wins}`,
 						)
 						.join('\n')
 				: 'no winners yet';
+
+		const losses =
+			stats.losses.length > 0
+				? stats.losses
+						.sort((a, b) => b.losses - a.losses)
+						.map(
+							(entry, index) =>
+								`${index + 1}. <@${entry.id}> - ${entry.losses}`,
+						)
+						.join('\n')
+				: 'no losers yet';
+
+		const content = `wins leaderboard\n${wins}\n\nlosses leaderboard\n${losses}`;
+
+		await message.reply({
+			content,
+			allowedMentions: { users: [], roles: [] },
+		});
+	},
+	stats: async (db: DatabaseSync, message: Message<true>) => {
+		const stats = getUserStats(db, message.author.id, message.guild.id);
+
+		const content = `wins: ${stats.wins}\nlosses: ${stats.losses}`;
 
 		await message.reply({
 			content,

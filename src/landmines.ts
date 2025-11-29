@@ -1,6 +1,6 @@
 import type { DatabaseSync } from 'node:sqlite';
 import type { Message, OmitPartialGroupDMChannel } from 'discord.js';
-import { getServer, incrementWin, upsertLandmine } from './db.js';
+import { getServer, upsertLandmine } from './db.js';
 import { logger } from './logger.js';
 import { sendPrize } from './prizes.js';
 import { getRandomInteger, getUpperBound } from './utils.js';
@@ -48,7 +48,6 @@ export const handleLandmines = async (
 			);
 
 			upsertLandmine(db, event.guild.id, 0);
-			incrementWin(db, user.id, event.guild.id);
 
 			await sendPrize(db, channel, user);
 		} else {

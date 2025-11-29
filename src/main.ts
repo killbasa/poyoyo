@@ -50,6 +50,12 @@ client.on(Events.MessageCreate, async (event) => {
 				return;
 			}
 			return await commands.leaderboard(db, event);
+		case 'stats':
+			if (!event.inGuild()) {
+				logger.log(`No guild info available (${command})`);
+				return;
+			}
+			return await commands.stats(db, event);
 	}
 
 	// Protected commands
