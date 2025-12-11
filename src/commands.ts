@@ -161,6 +161,7 @@ export const commands = {
 			content: Object.entries(count)
 				.sort((a, b) => b[1] - a[1])
 				.map(([author, cnt]) => `${author}: ${cnt}`)
+				.slice(0, 25)
 				.join('\n'),
 		});
 	},
