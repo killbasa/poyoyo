@@ -140,4 +140,28 @@ export const commands = {
 			allowedMentions: { users: [], roles: [] },
 		});
 	},
+	emotes: async (message: Message): Promise<void> => {
+		const emotes = await message.guild?.emojis.fetch();
+		if (!emotes) {
+			await message.reply({
+				content: 'no emotes found for this server',
+			});
+			return;
+		}
+
+		const count: Record<string, number> = {};
+		for (const emote of emotes.values()) {
+			if (emote.author) {
+				count[emote.author.displayName] ??= 0;
+				count[emote.author.displayName] += 1;
+			}
+		}
+
+		await message.reply({
+			content: Object.entries(count)
+				.sort((a, b) => b[1] - a[1])
+				.map(([author, cnt]) => `${author}: ${cnt}`)
+				.join('\n'),
+		});
+	},
 };

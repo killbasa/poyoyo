@@ -56,6 +56,12 @@ client.on(Events.MessageCreate, async (event) => {
 				return;
 			}
 			return await commands.stats(db, event);
+		case 'emotes':
+			if (!event.inGuild()) {
+				logger.log(`No guild info available (${command})`);
+				return;
+			}
+			return await commands.emotes(event);
 	}
 
 	// Protected commands
